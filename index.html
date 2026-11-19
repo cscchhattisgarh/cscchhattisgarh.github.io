@@ -143,11 +143,17 @@
             </div>
         </main>
 
-        <!-- Welcome Footer -->
+        <!-- Welcome Footer with Subtle State Admin Link -->
         <footer class="bg-white/80 border-t border-slate-200/80 py-4">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
                 <p>&copy; 2026 CSC e-Governance Services India Ltd. — State Team Chhattisgarh</p>
-                <p class="text-slate-400">Unified Operations Gateway</p>
+                <div class="flex items-center gap-3 text-slate-400">
+                    <span>Unified Operations Gateway</span>
+                    <span>•</span>
+                    <button onclick="openPinModal('admin')" class="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
+                        State Admin
+                    </button>
+                </div>
             </div>
         </footer>
     </div>
@@ -190,6 +196,74 @@
                 <span>Unlock Workspace</span>
                 <i class="fas fa-arrow-right text-xs"></i>
             </button>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         STATE ADMIN PIN CONFIGURATION MODAL (HIDDEN UNTIL ADMIN AUTHENTICATED)
+         ===================================================================== -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+            <button onclick="closeAdminModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">State Admin — Access Control</h3>
+                    <p class="text-xs text-slate-500">Manage 6-digit access PINs without editing source code</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <!-- VLE PIN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">VLE Services Portal PIN (6 Digits)</label>
+                    <input type="text" id="admin-vle-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none">
+                </div>
+
+                <!-- DM PIN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">District Manager Portal PIN (6 Digits)</label>
+                    <input type="text" id="admin-dm-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- State Admin Master PIN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">State Admin Master PIN (6 Digits)</label>
+                    <input type="text" id="admin-master-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-slate-700 focus:outline-none">
+                </div>
+
+                <!-- Optional Apps Script Cloud Sync URL -->
+                <div class="pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">
+                        Global Sync API URL <span class="text-slate-400 font-normal">(Optional — Google Apps Script Web App)</span>
+                    </label>
+                    <input type="url" id="admin-sync-url" placeholder="https://script.google.com/macros/s/.../exec"
+                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1">
+                        Link a Google Apps Script URL to sync updated PINs globally across all VLE & DM devices.
+                    </p>
+                </div>
+
+                <div id="admin-status-msg" class="hidden text-xs font-medium px-3 py-2 rounded-lg"></div>
+
+                <div class="pt-2 flex items-center justify-end gap-3">
+                    <button onclick="closeAdminModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="saveAdminSettings()" id="save-admin-btn" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-colors flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save & Apply PINs</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -332,12 +406,44 @@
 
     <script>
         // =====================================================================
-        // SECURITY PIN CONFIGURATION (Default: 000000 for both; customize anytime)
+        // DEFAULT PINS & OPTIONAL GOOGLE APPS SCRIPT GLOBAL SYNC URL
         // =====================================================================
-        const PINS = {
+        const DEFAULT_PINS = {
             vle: "000000",
-            dm: "000000"
+            dm: "000000",
+            admin: "000000"
         };
+
+        // Optional: Paste your Google Apps Script Web App URL here once for global sync across all devices
+        const DEFAULT_SYNC_URL = "";
+
+        let activePins = { ...DEFAULT_PINS };
+        let syncApiUrl = localStorage.getItem('csc_sync_url') || DEFAULT_SYNC_URL;
+
+        // Load locally saved PINs if available
+        const savedLocalPins = localStorage.getItem('csc_portal_pins');
+        if (savedLocalPins) {
+            try {
+                activePins = { ...activePins, ...JSON.parse(savedLocalPins) };
+            } catch (e) {}
+        }
+
+        // Fetch latest global PINs if Apps Script URL is configured
+        async function fetchCloudPins() {
+            if (!syncApiUrl) return;
+            try {
+                const res = await fetch(syncApiUrl + '?action=getPins');
+                const data = await res.json();
+                if (data && data.vle && data.dm) {
+                    activePins.vle = String(data.vle);
+                    activePins.dm = String(data.dm);
+                    if (data.admin) activePins.admin = String(data.admin);
+                    localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
+                }
+            } catch (err) {
+                console.warn('Using cached/default PINs');
+            }
+        }
 
         // =====================================================================
         // PORTAL MODULES DATA CONFIGURATION
@@ -424,8 +530,8 @@
         const pinError = document.getElementById('pin-error');
         const pinContainer = document.getElementById('pin-container');
 
-        // Check URL parameter (?role=dm or ?role=vle) or active session
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchCloudPins();
             const urlParams = new URLSearchParams(window.location.search);
             const paramRole = urlParams.get('role');
             const activeSessionRole = sessionStorage.getItem('csc_active_role');
@@ -433,7 +539,7 @@
             if (activeSessionRole && PORTAL_DATA[activeSessionRole]) {
                 selectedRole = activeSessionRole;
                 renderDashboard(selectedRole);
-            } else if (paramRole && PORTAL_DATA[paramRole]) {
+            } else if (paramRole && (PORTAL_DATA[paramRole] || paramRole === 'admin')) {
                 openPinModal(paramRole);
             }
         });
@@ -447,10 +553,14 @@
                 document.getElementById('pin-modal-title').innerText = "VLE Services Portal";
                 document.getElementById('pin-modal-subtitle').innerText = "Authorized Access — 6-Digit PIN";
                 document.getElementById('pin-icon-box').className = "w-16 h-16 bg-gradient-to-tr from-blue-600 to-sky-500 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/30";
-            } else {
+            } else if (role === 'dm') {
                 document.getElementById('pin-modal-title').innerText = "District Manager Command Center";
                 document.getElementById('pin-modal-subtitle').innerText = "Authorized Access — 6-Digit PIN Protected";
                 document.getElementById('pin-icon-box').className = "w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/30";
+            } else if (role === 'admin') {
+                document.getElementById('pin-modal-title').innerText = "State Admin Control";
+                document.getElementById('pin-modal-subtitle').innerText = "Master Security Authentication";
+                document.getElementById('pin-icon-box').className = "w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-slate-900/20";
             }
 
             document.getElementById('pin-modal').classList.remove('hidden');
@@ -463,7 +573,6 @@
             selectedRole = null;
         }
 
-        // PIN Input Keyboard & Paste Logic
         pinInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 input.value = input.value.replace(/[^0-9]/g, '');
@@ -501,10 +610,14 @@
             let enteredPin = '';
             pinInputs.forEach(input => enteredPin += input.value);
 
-            if (enteredPin === PINS[selectedRole]) {
-                sessionStorage.setItem('csc_active_role', selectedRole);
+            if (enteredPin === activePins[selectedRole]) {
                 document.getElementById('pin-modal').classList.add('hidden');
-                renderDashboard(selectedRole);
+                if (selectedRole === 'admin') {
+                    openAdminModal();
+                } else {
+                    sessionStorage.setItem('csc_active_role', selectedRole);
+                    renderDashboard(selectedRole);
+                }
             } else {
                 pinError.classList.remove('hidden');
                 pinContainer.classList.add('shake');
@@ -520,6 +633,72 @@
             }
         }
 
+        // =====================================================================
+        // STATE ADMIN MODAL LOGIC
+        // =====================================================================
+        function openAdminModal() {
+            document.getElementById('admin-vle-pin').value = activePins.vle;
+            document.getElementById('admin-dm-pin').value = activePins.dm;
+            document.getElementById('admin-master-pin').value = activePins.admin;
+            document.getElementById('admin-sync-url').value = syncApiUrl;
+            document.getElementById('admin-status-msg').classList.add('hidden');
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+            selectedRole = null;
+        }
+
+        async function saveAdminSettings() {
+            const newVle = document.getElementById('admin-vle-pin').value.replace(/[^0-9]/g, '');
+            const newDm = document.getElementById('admin-dm-pin').value.replace(/[^0-9]/g, '');
+            const newAdmin = document.getElementById('admin-master-pin').value.replace(/[^0-9]/g, '');
+            const newUrl = document.getElementById('admin-sync-url').value.trim();
+            const statusEl = document.getElementById('admin-status-msg');
+            const saveBtn = document.getElementById('save-admin-btn');
+
+            if (newVle.length !== 6 || newDm.length !== 6 || newAdmin.length !== 6) {
+                statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-rose-50 text-rose-700 border border-rose-200";
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> All three PINs must be exactly 6 digits.';
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            activePins = { vle: newVle, dm: newDm, admin: newAdmin };
+            localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
+            
+            syncApiUrl = newUrl;
+            localStorage.setItem('csc_sync_url', syncApiUrl);
+
+            if (syncApiUrl) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Syncing Globally...</span>';
+                try {
+                    await fetch(syncApiUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'setPins', vle: newVle, dm: newDm, admin: newAdmin })
+                    });
+                    statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
+                    statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PINs updated and synced globally across all devices!';
+                } catch (e) {
+                    statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-amber-50 text-amber-700 border border-amber-200";
+                    statusEl.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Saved locally. Check Sync URL connectivity.';
+                }
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> <span>Save & Apply PINs</span>';
+            } else {
+                statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
+                statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PINs updated successfully on this browser!';
+            }
+            statusEl.classList.remove('hidden');
+        }
+
+        // =====================================================================
+        // DASHBOARD RENDERING
+        // =====================================================================
         function renderDashboard(role) {
             const config = PORTAL_DATA[role];
             
