@@ -43,9 +43,9 @@
                         <span class="hidden sm:inline-block text-xs font-medium text-indigo-600">Digital Seva State Gateway</span>
                     </div>
                 </div>
-                <span id="cloud-sync-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Unified Portal Live
+                <span id="cloud-sync-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                    <i class="fas fa-circle-notch fa-spin text-[10px]"></i>
+                    Syncing Cloud Config...
                 </span>
             </div>
         </header>
@@ -518,14 +518,14 @@
             admin: "000000"
         };
 
-        // Paste your Google Apps Script Web App URL here once for global sync across all devices
-        const DEFAULT_SYNC_URL = "";
+        // Hardcoded Google Apps Script Web App URL for global sync across all devices
+        const DEFAULT_SYNC_URL = "https://script.google.com/macros/s/AKfycbyKx-O0my9hntNSyZyVro-raRuQSCBu-Tf8PzwdkrKeJTwpGZdOki6w_V5X5S093Ls/exec";
 
         let activePins = { ...DEFAULT_PINS };
-        let syncApiUrl = localStorage.getItem('csc_sync_url') || DEFAULT_SYNC_URL;
+        let syncApiUrl = DEFAULT_SYNC_URL || localStorage.getItem('csc_sync_url') || "";
         let cloudModules = [];
 
-        // Load locally cached PINs and Dynamic Modules
+        // Load locally cached PINs and Dynamic Modules as initial fallback
         try {
             const savedLocalPins = localStorage.getItem('csc_portal_pins');
             if (savedLocalPins) activePins = { ...activePins, ...JSON.parse(savedLocalPins) };
@@ -650,7 +650,6 @@
             }
         };
 
-        // Helper to merge base modules + dynamic Google Sheet modules
         function getMergedModules(role) {
             const base = BASE_PORTAL_DATA[role] ? [...BASE_PORTAL_DATA[role].modules] : [];
             const extra = cloudModules.filter(m => m.role && m.role.toLowerCase() === role.toLowerCase());
@@ -665,18 +664,24 @@
             });
         }
 
-        // Fetch latest global PINs & Dynamic Modules from Google Sheet
+        // Fetch latest global PINs & Dynamic Modules from Google Sheet (Bypassing Cache)
         async function refreshCloudData(showAlert = false) {
-            if (!syncApiUrl) return;
+            const badge = document.getElementById('cloud-sync-badge');
+            if (!syncApiUrl) {
+                badge.className = "inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full";
+                badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Local Mode';
+                return;
+            }
             try {
-                const res = await fetch(syncApiUrl + '?action=getAll');
+                const cacheBuster = `&t=${Date.now()}`;
+                const res = await fetch(`${syncApiUrl}?action=getAll${cacheBuster}`, { cache: 'no-store' });
                 const data = await res.json();
                 
                 if (data.pins) {
-                    if (data.pins.vle) activePins.vle = String(data.pins.vle);
-                    if (data.pins.dm) activePins.dm = String(data.pins.dm);
-                    if (data.pins.vh) activePins.vh = String(data.pins.vh);
-                    if (data.pins.admin) activePins.admin = String(data.pins.admin);
+                    if (data.pins.vle) activePins.vle = String(data.pins.vle).trim();
+                    if (data.pins.dm) activePins.dm = String(data.pins.dm).trim();
+                    if (data.pins.vh) activePins.vh = String(data.pins.vh).trim();
+                    if (data.pins.admin) activePins.admin = String(data.pins.admin).trim();
                     localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
                 }
 
@@ -685,16 +690,21 @@
                     localStorage.setItem('csc_cloud_modules', JSON.stringify(cloudModules));
                 }
 
+                badge.className = "inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full";
+                badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Synced';
+
                 updateHomeModuleCounts();
                 if (selectedRole && BASE_PORTAL_DATA[selectedRole]) {
                     renderDashboard(selectedRole);
                 }
-                if (document.getElementById('admin-modal').classList.contains('hidden') === false) {
+                if (!document.getElementById('admin-modal').classList.contains('hidden')) {
                     renderCustomModulesList();
                 }
                 if (showAlert) alert('Synced latest PINs and Modules from Google Sheet!');
             } catch (err) {
-                console.warn('Cloud sync fallback to local cache:', err);
+                console.warn('Cloud sync error:', err);
+                badge.className = "inline-flex items-center gap-1.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full";
+                badge.innerHTML = '<i class="fas fa-exclamation-circle text-[10px]"></i> Offline Cache';
             }
         }
 
@@ -719,7 +729,7 @@
             }
         });
 
-        function openPinModal(role) {
+        async function openPinModal(role) {
             selectedRole = role;
             pinError.classList.add('hidden');
             pinInputs.forEach(input => input.value = '');
@@ -744,6 +754,7 @@
 
             document.getElementById('pin-modal').classList.remove('hidden');
             setTimeout(() => pinInputs[0].focus(), 100);
+            refreshCloudData(); // Refresh latest PIN in background when modal opens
         }
 
         function closePinModal() {
@@ -784,10 +795,15 @@
             });
         });
 
-        function verifyPin() {
+        async function verifyPin() {
             if (!selectedRole) return;
             let enteredPin = '';
             pinInputs.forEach(input => enteredPin += input.value);
+
+            // If entered PIN doesn't match cached PIN, do one fresh cloud check before rejecting
+            if (enteredPin !== activePins[selectedRole] && syncApiUrl) {
+                await refreshCloudData();
+            }
 
             if (enteredPin === activePins[selectedRole]) {
                 document.getElementById('pin-modal').classList.add('hidden');
@@ -813,7 +829,7 @@
         }
 
         // =====================================================================
-        // STATE ADMIN MODAL LOGIC (TABS: PINS & DYNAMIC MODULES)
+        // STATE ADMIN MODAL LOGIC
         // =====================================================================
         function switchAdminTab(tab) {
             const pinsTab = document.getElementById('admin-tab-pins');
@@ -880,7 +896,7 @@
                     await fetch(syncApiUrl, {
                         method: 'POST',
                         mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'text/plain' },
                         body: JSON.stringify({ action: 'setPins', vle: newVle, dm: newDm, vh: newVh, admin: newAdmin })
                     });
                     statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
@@ -890,15 +906,14 @@
                     statusEl.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Saved locally. Check Sync URL connectivity.';
                 }
                 saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save"></i> <span>Save & Apply PINs</span>';
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> <span>Save & Sync PINs</span>';
             } else {
                 statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
-                statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PINs updated successfully on this browser!';
+                statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PINs updated locally. Paste Sync URL in code for all devices.';
             }
             statusEl.classList.remove('hidden');
         }
 
-        // Add New Module Dynamically via Admin Panel (Syncs to Google Sheet)
         async function addNewDynamicModule() {
             const role = document.getElementById('mod-role').value;
             const category = document.getElementById('mod-category').value.trim() || 'State Initiative';
@@ -939,7 +954,7 @@
                     await fetch(syncApiUrl, {
                         method: 'POST',
                         mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'text/plain' },
                         body: JSON.stringify({ action: 'addModule', module: newMod })
                     });
                     statusEl.className = "text-xs font-medium text-emerald-700";
@@ -952,7 +967,7 @@
                 btn.innerHTML = '<i class="fas fa-plus"></i> <span>Publish Module to Portal</span>';
             } else {
                 statusEl.className = "text-xs font-medium text-emerald-700";
-                statusEl.innerText = "Added locally! Set Sync API URL to publish for all users.";
+                statusEl.innerText = "Added locally! Set Sync API URL in code to publish for all users.";
             }
 
             statusEl.classList.remove('hidden');
@@ -967,7 +982,7 @@
                 container.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No additional modules added from Google Sheet yet.</p>';
                 return;
             }
-            container.innerHTML = cloudModules.map((m, idx) => `
+            container.innerHTML = cloudModules.map((m) => `
                 <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
                     <div class="truncate pr-2">
                         <span class="uppercase font-bold text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 mr-1.5">${m.role}</span>
