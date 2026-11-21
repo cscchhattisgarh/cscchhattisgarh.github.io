@@ -67,7 +67,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     
                     <!-- Card 1: VLE -->
-                    <div onclick="openPinModal('vle')" 
+                    <div onclick="openAuthModal('vle')" 
                          class="group cursor-pointer bg-white rounded-3xl p-7 border-2 border-slate-200/80 hover:border-blue-500 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full pointer-events-none"></div>
                         <div>
@@ -98,7 +98,7 @@
                     </div>
 
                     <!-- Card 2: DM -->
-                    <div onclick="openPinModal('dm')" 
+                    <div onclick="openAuthModal('dm')" 
                          class="group cursor-pointer bg-white rounded-3xl p-7 border-2 border-slate-200/80 hover:border-indigo-500 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-indigo-50 to-transparent rounded-bl-full pointer-events-none"></div>
                         <div>
@@ -128,8 +128,8 @@
                         </div>
                     </div>
 
-                    <!-- Card 3: Vertical Head -->
-                    <div onclick="openPinModal('vh')" 
+                    <!-- Card 3: Vertical Head (User ID + PIN) -->
+                    <div onclick="openAuthModal('vh')" 
                          class="group cursor-pointer bg-white rounded-3xl p-7 border-2 border-slate-200/80 hover:border-teal-500 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-teal-500/10 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-teal-50 to-transparent rounded-bl-full pointer-events-none"></div>
                         <div>
@@ -138,24 +138,24 @@
                                     <i class="fas fa-user-tie"></i>
                                 </div>
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-100">
-                                    <i class="fas fa-key text-[9px]"></i> State Staff Access
+                                    <i class="fas fa-id-badge text-[9px]"></i> User ID + PIN
                                 </span>
                             </div>
                             <h2 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors mb-1.5">
                                 Vertical Head Panel
                             </h2>
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-600 mb-3">
-                                State Team — 6-Digit PIN Protected
+                                Vertical-Specific State Login
                             </p>
                             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                                State-level administrative workspace for vertical leads to configure workflows, manage controls, and oversee project rollouts.
+                                Dedicated workspace for Vertical Heads. Login with your assigned User ID and PIN to access modules specific to your vertical.
                             </p>
                         </div>
                         <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
                             <span class="text-xs sm:text-sm font-bold text-teal-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
-                                Proceed as Vertical Head <i class="fas fa-arrow-right text-xs"></i>
+                                Login as Vertical Head <i class="fas fa-arrow-right text-xs"></i>
                             </span>
-                            <span id="home-count-vh" class="text-xs text-slate-400 font-medium">Loading...</span>
+                            <span id="home-count-vh" class="text-xs text-slate-400 font-medium">Role-Based</span>
                         </div>
                     </div>
 
@@ -169,7 +169,7 @@
                 <div class="flex items-center gap-3 text-slate-400">
                     <span>Unified Operations Gateway</span>
                     <span>•</span>
-                    <button onclick="openPinModal('admin')" class="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
+                    <button onclick="openAuthModal('admin')" class="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none">
                         State Admin
                     </button>
                 </div>
@@ -177,18 +177,29 @@
         </footer>
     </div>
 
-    <!-- STEP 2: 6-DIGIT PIN MODAL -->
-    <div id="pin-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <!-- STEP 2: AUTHENTICATION MODAL (PIN ONLY FOR VLE/DM/ADMIN; USER ID + PIN FOR VH) -->
+    <div id="auth-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-indigo-100 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative">
-            <button onclick="closePinModal()" title="Back" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
+            <button onclick="closeAuthModal()" title="Back" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
                 <i class="fas fa-times text-xs"></i>
             </button>
-            <div id="pin-icon-box" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/30">
+            <div id="auth-icon-box" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/30">
                 <i class="fas fa-lock text-2xl text-white"></i>
             </div>
-            <h2 id="pin-modal-title" class="text-2xl font-bold text-slate-900 tracking-tight mb-1">Authorized Access</h2>
-            <p id="pin-modal-subtitle" class="text-indigo-600 font-semibold text-xs uppercase tracking-wider mb-6">CSC Chhattisgarh Operations Hub</p>
-            <p class="text-xs text-slate-500 mb-5">Please enter your 6-digit security PIN to continue</p>
+            <h2 id="auth-modal-title" class="text-2xl font-bold text-slate-900 tracking-tight mb-1">Authorized Access</h2>
+            <p id="auth-modal-subtitle" class="text-indigo-600 font-semibold text-xs uppercase tracking-wider mb-5">CSC Chhattisgarh Operations Hub</p>
+
+            <!-- User ID Field (Only shown for Vertical Head) -->
+            <div id="vh-userid-wrapper" class="hidden text-left mb-4">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Vertical Head User ID</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="vh-userid-input" placeholder="e.g., vh_training" autocomplete="off"
+                           class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:border-teal-500 focus:outline-none transition-all">
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-4">Enter your 6-digit security PIN</p>
 
             <div id="pin-container" class="flex justify-center gap-2 sm:gap-3 mb-5">
                 <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold bg-slate-50 text-slate-900 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all" />
@@ -199,11 +210,11 @@
                 <input type="password" inputmode="numeric" maxlength="1" class="pin-input w-11 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold bg-slate-50 text-slate-900 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all" />
             </div>
 
-            <p id="pin-error" class="text-rose-600 text-xs font-medium h-5 mb-4 hidden">
-                <i class="fas fa-exclamation-circle mr-1"></i> Incorrect PIN. Please verify and try again.
+            <p id="auth-error" class="text-rose-600 text-xs font-medium h-5 mb-4 hidden">
+                <i class="fas fa-exclamation-circle mr-1"></i> Invalid credentials. Please verify and try again.
             </p>
 
-            <button onclick="verifyPin()" id="unlock-btn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-sm font-semibold py-3 rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
+            <button onclick="verifyAuth()" id="unlock-btn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-sm font-semibold py-3 rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
                 <span>Unlock Workspace</span>
                 <i class="fas fa-arrow-right text-xs"></i>
             </button>
@@ -223,36 +234,35 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-slate-900">State Admin — Control Center</h3>
-                    <p class="text-xs text-slate-500">Manage PINs & publish modules directly to Google Sheet</p>
+                    <p class="text-xs text-slate-500">Manage PINs, Vertical Heads & Modules directly in Google Sheet</p>
                 </div>
             </div>
 
-            <div class="flex gap-2 border-b border-slate-200 mb-5">
-                <button onclick="switchAdminTab('pins')" id="tab-btn-pins" class="px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors">
-                    <i class="fas fa-key mr-1.5"></i> Access PINs & Sync
+            <div class="flex flex-wrap gap-2 border-b border-slate-200 mb-5">
+                <button onclick="switchAdminTab('pins')" id="tab-btn-pins" class="px-3.5 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors">
+                    <i class="fas fa-key mr-1"></i> Common PINs
                 </button>
-                <button onclick="switchAdminTab('modules')" id="tab-btn-modules" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">
-                    <i class="fas fa-plus-circle mr-1.5"></i> Add / View Sheet Modules
+                <button onclick="switchAdminTab('vhusers')" id="tab-btn-vhusers" class="px-3.5 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">
+                    <i class="fas fa-user-tie mr-1"></i> Vertical Heads
+                </button>
+                <button onclick="switchAdminTab('modules')" id="tab-btn-modules" class="px-3.5 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">
+                    <i class="fas fa-plus-circle mr-1"></i> Sheet Modules
                 </button>
             </div>
 
-            <!-- TAB 1: PINS -->
+            <!-- TAB 1: COMMON PINS -->
             <div id="admin-tab-pins" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">VLE Services Portal PIN</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">VLE Portal PIN</label>
                         <input type="text" id="admin-vle-pin" maxlength="6" inputmode="numeric" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">District Manager Portal PIN</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">DM Portal PIN</label>
                         <input type="text" id="admin-dm-pin" maxlength="6" inputmode="numeric" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Vertical Head Panel PIN</label>
-                        <input type="text" id="admin-vh-pin" maxlength="6" inputmode="numeric" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-teal-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">State Admin Master PIN</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">State Admin PIN</label>
                         <input type="text" id="admin-master-pin" maxlength="6" inputmode="numeric" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-slate-700 focus:outline-none">
                     </div>
                 </div>
@@ -272,32 +282,77 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MODULES -->
+            <!-- TAB 2: VERTICAL HEAD USERS -->
+            <div id="admin-tab-vhusers" class="hidden space-y-4">
+                <div class="bg-teal-50/70 border border-teal-100 rounded-2xl p-4 space-y-3">
+                    <h4 class="text-xs font-bold text-teal-900 uppercase tracking-wider">Create Vertical Head Login</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">User ID (Unique)</label>
+                            <input type="text" id="new-vh-id" placeholder="e.g., vh_banking" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-teal-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">6-Digit PIN</label>
+                            <input type="text" id="new-vh-pin" maxlength="6" inputmode="numeric" placeholder="123456" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:border-teal-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Officer Name</label>
+                            <input type="text" id="new-vh-name" placeholder="e.g., Rahul Sharma" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-teal-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Assigned Vertical (or ALL)</label>
+                            <input type="text" id="new-vh-vertical" placeholder="e.g., Banking or Training or ALL" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-teal-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <span id="vh-add-status" class="text-xs font-medium text-emerald-700 hidden"></span>
+                        <button onclick="addNewVhUser()" id="add-vh-btn" class="ml-auto px-4 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white shadow-sm transition-colors flex items-center gap-1.5">
+                            <i class="fas fa-user-plus"></i> <span>Save Vertical Head</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-slate-700">Active Vertical Heads (from VH_Users tab)</h4>
+                        <button onclick="refreshCloudData(true)" class="text-[11px] font-semibold text-indigo-600 hover:underline">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="vh-users-list" class="max-h-40 overflow-y-auto space-y-2 pr-1"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MODULES -->
             <div id="admin-tab-modules" class="hidden space-y-4">
                 <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 space-y-3">
                     <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Add New Module to Google Sheet</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Target Panel</label>
                             <select id="mod-role" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
-                                <option value="vle">VLE Services Portal</option>
-                                <option value="dm">District Manager Command Center</option>
-                                <option value="vh">Vertical Head Panel</option>
+                                <option value="vle">VLE Services</option>
+                                <option value="dm">District Manager</option>
+                                <option value="vh">Vertical Head</option>
                             </select>
                         </div>
                         <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Vertical Tag (for VH)</label>
+                            <input type="text" id="mod-vertical" value="ALL" placeholder="e.g., Training, Banking, ALL" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Category Badge</label>
-                            <input type="text" id="mod-category" placeholder="e.g., Center Compliance" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                            <input type="text" id="mod-category" placeholder="e.g., State Admin" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
                         </div>
-                        <div class="sm:col-span-2">
+                        <div class="sm:col-span-3">
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Module Title</label>
-                            <input type="text" id="mod-title" placeholder="e.g., Agristack Farmer Registry Tracker" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                            <input type="text" id="mod-title" placeholder="e.g., Training Attendance Admin Console" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
                         </div>
-                        <div class="sm:col-span-2">
+                        <div class="sm:col-span-3">
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Hosted URL</label>
-                            <input type="url" id="mod-url" placeholder="https://cscchhattisgarh.github.io/project-name/" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                            <input type="url" id="mod-url" placeholder="https://cscchhattisgarh.github.io/..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
                         </div>
-                        <div class="sm:col-span-2">
+                        <div class="sm:col-span-3">
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Description</label>
                             <input type="text" id="mod-desc" placeholder="Brief summary..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
                         </div>
@@ -314,10 +369,10 @@
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-xs font-bold text-slate-700">All Active Sheet Modules</h4>
                         <button onclick="refreshCloudData(true)" class="text-[11px] font-semibold text-indigo-600 hover:underline">
-                            <i class="fas fa-sync-alt mr-1"></i> Refresh from Sheet
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
                         </button>
                     </div>
-                    <div id="custom-modules-list" class="max-h-44 overflow-y-auto space-y-2 pr-1"></div>
+                    <div id="custom-modules-list" class="max-h-40 overflow-y-auto space-y-2 pr-1"></div>
                 </div>
             </div>
         </div>
@@ -370,7 +425,7 @@
                         </div>
                         <div class="h-8 w-px bg-white/25"></div>
                         <div>
-                            <p class="text-[11px] uppercase tracking-wider text-blue-100 font-medium">Access Role</p>
+                            <p class="text-[11px] uppercase tracking-wider text-blue-100 font-medium">Logged In As</p>
                             <p id="banner-role" class="text-sm font-semibold text-white">Authorized User</p>
                         </div>
                     </div>
@@ -433,18 +488,24 @@
     </div>
 
     <script>
-        const DEFAULT_PINS = { vle: "000000", dm: "000000", vh: "000000", admin: "000000" };
+        const DEFAULT_PINS = { vle: "000000", dm: "000000", admin: "000000" };
         const DEFAULT_SYNC_URL = "https://script.google.com/macros/s/AKfycbyKx-O0my9hntNSyZyVro-raRuQSCBu-Tf8PzwdkrKeJTwpGZdOki6w_V5X5S093Ls/exec";
 
         let activePins = { ...DEFAULT_PINS };
         let syncApiUrl = DEFAULT_SYNC_URL || localStorage.getItem('csc_sync_url') || "";
         let sheetModules = [];
+        let vhUsers = [];
+        let activeVhUser = null;
 
         try {
             const savedPins = localStorage.getItem('csc_portal_pins');
             if (savedPins) activePins = { ...activePins, ...JSON.parse(savedPins) };
             const savedMods = localStorage.getItem('csc_sheet_modules');
             if (savedMods) sheetModules = JSON.parse(savedMods);
+            const savedVh = localStorage.getItem('csc_vh_users');
+            if (savedVh) vhUsers = JSON.parse(savedVh);
+            const savedActiveVh = sessionStorage.getItem('csc_active_vh');
+            if (savedActiveVh) activeVhUser = JSON.parse(savedActiveVh);
         } catch (e) {}
 
         const ROLE_META = {
@@ -455,8 +516,7 @@
                 bannerDesc: "Unified operational dashboard managed dynamically via State Operations Google Sheet.",
                 bannerGradient: "from-blue-600 via-sky-600 to-cyan-500",
                 roleLabel: "CSC VLE",
-                accent: "blue",
-                icon: "fas fa-store"
+                accent: "blue"
             },
             dm: {
                 roleBadge: "District Manager Command Center",
@@ -465,31 +525,48 @@
                 bannerDesc: "Centralized administrative console for district field monitoring and saturation analytics.",
                 bannerGradient: "from-indigo-600 via-blue-600 to-sky-500",
                 roleLabel: "District Manager",
-                accent: "indigo",
-                icon: "fas fa-user-shield"
+                accent: "indigo"
             },
             vh: {
                 roleBadge: "Vertical Head Panel",
                 bannerTag: "STATE OPERATIONS & VERTICAL CONTROL",
                 bannerTitle: "Vertical Head Administrative Console",
-                bannerDesc: "State-level management hub for vertical leads to administer workflows and rollouts.",
+                bannerDesc: "Filtered state-level workspace tailored to your assigned operational vertical.",
                 bannerGradient: "from-teal-600 via-emerald-600 to-cyan-600",
                 roleLabel: "Vertical Head",
-                accent: "teal",
-                icon: "fas fa-user-tie"
+                accent: "teal"
             }
         };
 
-        function getRoleModules(role) {
-            return sheetModules.filter(m => m.role && m.role.toLowerCase() === role.toLowerCase());
+        function getFilteredModules(role) {
+            const roleMods = sheetModules.filter(m => m.role && m.role.toLowerCase() === role.toLowerCase());
+            if (role !== 'vh' || !activeVhUser) return roleMods;
+
+            const userVerticals = String(activeVhUser.vertical || 'ALL')
+                .split(',')
+                .map(v => v.trim().toLowerCase())
+                .filter(Boolean);
+
+            if (userVerticals.includes('all')) return roleMods;
+
+            return roleMods.filter(m => {
+                const modVerts = String(m.vertical || 'ALL')
+                    .split(',')
+                    .map(v => v.trim().toLowerCase())
+                    .filter(Boolean);
+                return modVerts.includes('all') || modVerts.some(v => userVerticals.includes(v));
+            });
         }
 
         function updateHomeModuleCounts() {
-            ['vle', 'dm', 'vh'].forEach(role => {
-                const count = getRoleModules(role).length;
+            ['vle', 'dm'].forEach(role => {
+                const count = sheetModules.filter(m => m.role && m.role.toLowerCase() === role).length;
                 const el = document.getElementById(`home-count-${role}`);
                 if (el) el.innerText = `${String(count).padStart(2, '0')} Module${count !== 1 ? 's' : ''}`;
             });
+            const vhTotal = sheetModules.filter(m => m.role && m.role.toLowerCase() === 'vh').length;
+            const vhEl = document.getElementById('home-count-vh');
+            if (vhEl) vhEl.innerText = vhTotal ? `${String(vhTotal).padStart(2, '0')} Total • ID Filtered` : 'ID Filtered';
         }
 
         async function refreshCloudData(showAlert = false) {
@@ -499,10 +576,15 @@
                 const data = await res.json();
                 
                 if (data.pins) {
-                    ['vle', 'dm', 'vh', 'admin'].forEach(k => {
+                    ['vle', 'dm', 'admin'].forEach(k => {
                         if (data.pins[k]) activePins[k] = String(data.pins[k]).trim();
                     });
                     localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
+                }
+
+                if (Array.isArray(data.vhUsers)) {
+                    vhUsers = data.vhUsers;
+                    localStorage.setItem('csc_vh_users', JSON.stringify(vhUsers));
                 }
 
                 if (Array.isArray(data.modules)) {
@@ -515,8 +597,11 @@
 
                 updateHomeModuleCounts();
                 if (selectedRole && ROLE_META[selectedRole]) renderDashboard(selectedRole);
-                if (!document.getElementById('admin-modal').classList.contains('hidden')) renderCustomModulesList();
-                if (showAlert) alert('Synced latest PINs and Modules from Google Sheet!');
+                if (!document.getElementById('admin-modal').classList.contains('hidden')) {
+                    renderCustomModulesList();
+                    renderVhUsersList();
+                }
+                if (showAlert) alert('Synced latest PINs, Vertical Heads & Modules from Google Sheet!');
             } catch (err) {
                 badge.className = "inline-flex items-center gap-1.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full";
                 badge.innerHTML = '<i class="fas fa-exclamation-circle text-[10px]"></i> Cached Mode';
@@ -525,7 +610,7 @@
 
         let selectedRole = null;
         const pinInputs = document.querySelectorAll('.pin-input');
-        const pinError = document.getElementById('pin-error');
+        const authError = document.getElementById('auth-error');
         const pinContainer = document.getElementById('pin-container');
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -537,106 +622,160 @@
             const activeSessionRole = sessionStorage.getItem('csc_active_role');
 
             if (activeSessionRole && ROLE_META[activeSessionRole]) {
-                selectedRole = activeSessionRole;
-                renderDashboard(selectedRole);
+                if (activeSessionRole === 'vh' && !activeVhUser) {
+                    openAuthModal('vh');
+                } else {
+                    selectedRole = activeSessionRole;
+                    renderDashboard(selectedRole);
+                }
             } else if (paramRole && (ROLE_META[paramRole] || paramRole === 'admin')) {
-                openPinModal(paramRole);
+                openAuthModal(paramRole);
             }
         });
 
-        function openPinModal(role) {
+        function openAuthModal(role) {
             selectedRole = role;
-            pinError.classList.add('hidden');
+            authError.classList.add('hidden');
             pinInputs.forEach(input => input.value = '');
+            document.getElementById('vh-userid-input').value = '';
+
+            const isVh = role === 'vh';
+            document.getElementById('vh-userid-wrapper').classList.toggle('hidden', !isVh);
 
             const titles = {
                 vle: ["VLE Services Portal", "Authorized Access — 6-Digit PIN", "from-blue-600 to-sky-500 shadow-blue-500/30"],
                 dm: ["District Manager Command Center", "Authorized Access — 6-Digit PIN Protected", "from-indigo-600 to-purple-600 shadow-indigo-500/30"],
-                vh: ["Vertical Head Panel", "State Staff — 6-Digit PIN Protected", "from-teal-600 to-emerald-500 shadow-teal-500/30"],
+                vh: ["Vertical Head Panel", "Login with User ID & 6-Digit PIN", "from-teal-600 to-emerald-500 shadow-teal-500/30"],
                 admin: ["State Admin Control", "Master Security Authentication", "bg-slate-900 shadow-slate-900/20"]
             };
 
             const [title, sub, style] = titles[role];
-            document.getElementById('pin-modal-title').innerText = title;
-            document.getElementById('pin-modal-subtitle').innerText = sub;
-            document.getElementById('pin-icon-box').className = `w-16 h-16 bg-gradient-to-tr ${style} rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg`;
+            document.getElementById('auth-modal-title').innerText = title;
+            document.getElementById('auth-modal-subtitle').innerText = sub;
+            document.getElementById('auth-icon-box').className = `w-16 h-16 bg-gradient-to-tr ${style} rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg`;
 
-            document.getElementById('pin-modal').classList.remove('hidden');
-            setTimeout(() => pinInputs[0].focus(), 100);
+            document.getElementById('auth-modal').classList.remove('hidden');
+            setTimeout(() => {
+                if (isVh) document.getElementById('vh-userid-input').focus();
+                else pinInputs[0].focus();
+            }, 100);
             refreshCloudData();
         }
 
-        function closePinModal() {
-            document.getElementById('pin-modal').classList.add('hidden');
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
             pinInputs.forEach(input => input.value = '');
             selectedRole = null;
         }
 
+        document.getElementById('vh-userid-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                pinInputs[0].focus();
+            }
+        });
+
         pinInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 input.value = input.value.replace(/[^0-9]/g, '');
-                pinError.classList.add('hidden');
+                authError.classList.add('hidden');
                 if (input.value && index < pinInputs.length - 1) pinInputs[index + 1].focus();
-                if (index === pinInputs.length - 1 && input.value) verifyPin();
+                if (index === pinInputs.length - 1 && input.value) verifyAuth();
             });
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && !input.value && index > 0) pinInputs[index - 1].focus();
-                else if (e.key === 'Enter') verifyPin();
-                else if (e.key === 'Escape') closePinModal();
+                else if (e.key === 'Enter') verifyAuth();
+                else if (e.key === 'Escape') closeAuthModal();
             });
             input.addEventListener('paste', (e) => {
                 e.preventDefault();
                 const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
                 pasted.split('').forEach((ch, i) => { if (pinInputs[i]) pinInputs[i].value = ch; });
-                if (pasted.length === 6) verifyPin();
+                if (pasted.length === 6) verifyAuth();
             });
         });
 
-        async function verifyPin() {
+        async function verifyAuth() {
             if (!selectedRole) return;
             let enteredPin = '';
             pinInputs.forEach(input => enteredPin += input.value);
 
+            if (selectedRole === 'vh') {
+                const enteredId = document.getElementById('vh-userid-input').value.trim().toLowerCase();
+                if (!enteredId) {
+                    showAuthError("Please enter your Vertical Head User ID.");
+                    document.getElementById('vh-userid-input').focus();
+                    return;
+                }
+
+                let matchedUser = vhUsers.find(u => String(u.user_id).trim().toLowerCase() === enteredId && String(u.pin).trim() === enteredPin);
+                if (!matchedUser && syncApiUrl) {
+                    await refreshCloudData();
+                    matchedUser = vhUsers.find(u => String(u.user_id).trim().toLowerCase() === enteredId && String(u.pin).trim() === enteredPin);
+                }
+
+                if (matchedUser) {
+                    activeVhUser = matchedUser;
+                    sessionStorage.setItem('csc_active_vh', JSON.stringify(matchedUser));
+                    sessionStorage.setItem('csc_active_role', 'vh');
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    renderDashboard('vh');
+                } else {
+                    showAuthError("Invalid User ID or PIN. Please verify and try again.");
+                }
+                return;
+            }
+
+            // Common PIN verification for VLE, DM, Admin
             if (enteredPin !== activePins[selectedRole] && syncApiUrl) {
                 await refreshCloudData();
             }
 
             if (enteredPin === activePins[selectedRole]) {
-                document.getElementById('pin-modal').classList.add('hidden');
+                document.getElementById('auth-modal').classList.add('hidden');
                 if (selectedRole === 'admin') openAdminModal();
                 else {
+                    activeVhUser = null;
+                    sessionStorage.removeItem('csc_active_vh');
                     sessionStorage.setItem('csc_active_role', selectedRole);
                     renderDashboard(selectedRole);
                 }
             } else {
-                pinError.classList.remove('hidden');
-                pinContainer.classList.add('shake');
-                pinInputs.forEach(input => { input.value = ''; input.classList.add('border-rose-500'); });
-                setTimeout(() => {
-                    pinContainer.classList.remove('shake');
-                    pinInputs.forEach(input => input.classList.remove('border-rose-500'));
-                    pinInputs[0].focus();
-                }, 450);
+                showAuthError("Incorrect PIN. Please verify and try again.");
             }
         }
 
+        function showAuthError(msg) {
+            authError.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i> ${msg}`;
+            authError.classList.remove('hidden');
+            pinContainer.classList.add('shake');
+            pinInputs.forEach(input => { input.value = ''; input.classList.add('border-rose-500'); });
+            setTimeout(() => {
+                pinContainer.classList.remove('shake');
+                pinInputs.forEach(input => input.classList.remove('border-rose-500'));
+                if (selectedRole === 'vh' && !document.getElementById('vh-userid-input').value.trim()) {
+                    document.getElementById('vh-userid-input').focus();
+                } else {
+                    pinInputs[0].focus();
+                }
+            }, 450);
+        }
+
         function switchAdminTab(tab) {
-            const isPins = tab === 'pins';
-            document.getElementById('admin-tab-pins').classList.toggle('hidden', !isPins);
-            document.getElementById('admin-tab-modules').classList.toggle('hidden', isPins);
-            document.getElementById('tab-btn-pins').className = isPins
-                ? "px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors"
-                : "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors";
-            document.getElementById('tab-btn-modules').className = !isPins
-                ? "px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors"
-                : "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors";
-            if (!isPins) renderCustomModulesList();
+            ['pins', 'vhusers', 'modules'].forEach(t => {
+                const isActive = t === tab;
+                document.getElementById(`admin-tab-${t}`).classList.toggle('hidden', !isActive);
+                document.getElementById(`tab-btn-${t}`).className = isActive
+                    ? "px-3.5 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors"
+                    : "px-3.5 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors";
+            });
+            if (tab === 'vhusers') renderVhUsersList();
+            if (tab === 'modules') renderCustomModulesList();
         }
 
         function openAdminModal() {
             document.getElementById('admin-vle-pin').value = activePins.vle;
             document.getElementById('admin-dm-pin').value = activePins.dm;
-            document.getElementById('admin-vh-pin').value = activePins.vh;
             document.getElementById('admin-master-pin').value = activePins.admin;
             document.getElementById('admin-sync-url').value = syncApiUrl;
             document.getElementById('admin-status-msg').classList.add('hidden');
@@ -652,20 +791,19 @@
         async function saveAdminSettings() {
             const newVle = document.getElementById('admin-vle-pin').value.replace(/[^0-9]/g, '');
             const newDm = document.getElementById('admin-dm-pin').value.replace(/[^0-9]/g, '');
-            const newVh = document.getElementById('admin-vh-pin').value.replace(/[^0-9]/g, '');
             const newAdmin = document.getElementById('admin-master-pin').value.replace(/[^0-9]/g, '');
             const newUrl = document.getElementById('admin-sync-url').value.trim();
             const statusEl = document.getElementById('admin-status-msg');
             const saveBtn = document.getElementById('save-admin-btn');
 
-            if (newVle.length !== 6 || newDm.length !== 6 || newVh.length !== 6 || newAdmin.length !== 6) {
+            if (newVle.length !== 6 || newDm.length !== 6 || newAdmin.length !== 6) {
                 statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-rose-50 text-rose-700 border border-rose-200";
-                statusEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> All four PINs must be 6 digits.';
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> All three PINs must be 6 digits.';
                 statusEl.classList.remove('hidden');
                 return;
             }
 
-            activePins = { vle: newVle, dm: newDm, vh: newVh, admin: newAdmin };
+            activePins = { vle: newVle, dm: newDm, admin: newAdmin };
             localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
             syncApiUrl = newUrl;
             localStorage.setItem('csc_sync_url', syncApiUrl);
@@ -677,7 +815,7 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ action: 'setPins', vle: newVle, dm: newDm, vh: newVh, admin: newAdmin })
+                    body: JSON.stringify({ action: 'setPins', vle: newVle, dm: newDm, admin: newAdmin })
                 });
                 statusEl.className = "text-xs font-medium px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
                 statusEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PINs synced globally with Google Sheet!';
@@ -690,8 +828,71 @@
             statusEl.classList.remove('hidden');
         }
 
+        async function addNewVhUser() {
+            const user_id = document.getElementById('new-vh-id').value.trim().toLowerCase();
+            const pin = document.getElementById('new-vh-pin').value.replace(/[^0-9]/g, '');
+            const name = document.getElementById('new-vh-name').value.trim();
+            const vertical = document.getElementById('new-vh-vertical').value.trim() || 'ALL';
+            const statusEl = document.getElementById('vh-add-status');
+            const btn = document.getElementById('add-vh-btn');
+
+            if (!user_id || pin.length !== 6 || !name) {
+                statusEl.className = "text-xs font-medium text-rose-600";
+                statusEl.innerText = "User ID, Name & 6-digit PIN are required.";
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            const newUser = { user_id, pin, name, vertical };
+            vhUsers = vhUsers.filter(u => u.user_id !== user_id);
+            vhUsers.push(newUser);
+            localStorage.setItem('csc_vh_users', JSON.stringify(vhUsers));
+            renderVhUsersList();
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Saving...</span>';
+            try {
+                await fetch(syncApiUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'addVhUser', user: newUser })
+                });
+                statusEl.className = "text-xs font-medium text-emerald-700";
+                statusEl.innerText = "Vertical Head saved to Google Sheet!";
+            } catch (e) {
+                statusEl.className = "text-xs font-medium text-amber-700";
+                statusEl.innerText = "Saved locally.";
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> <span>Save Vertical Head</span>';
+            statusEl.classList.remove('hidden');
+            document.getElementById('new-vh-id').value = '';
+            document.getElementById('new-vh-pin').value = '';
+            document.getElementById('new-vh-name').value = '';
+            document.getElementById('new-vh-vertical').value = '';
+        }
+
+        function renderVhUsersList() {
+            const container = document.getElementById('vh-users-list');
+            if (!vhUsers.length) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No Vertical Head users found in VH_Users tab yet.</p>';
+                return;
+            }
+            container.innerHTML = vhUsers.map(u => `
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <div class="truncate pr-2">
+                        <span class="font-mono font-bold text-[11px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 mr-1.5">${u.user_id}</span>
+                        <span class="font-semibold text-slate-800">${u.name}</span>
+                    </div>
+                    <span class="text-[11px] font-medium text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md shrink-0">${u.vertical}</span>
+                </div>
+            `).join('');
+        }
+
         async function addNewDynamicModule() {
             const role = document.getElementById('mod-role').value;
+            const vertical = document.getElementById('mod-vertical').value.trim() || 'ALL';
             const category = document.getElementById('mod-category').value.trim() || 'State Initiative';
             const title = document.getElementById('mod-title').value.trim();
             const url = document.getElementById('mod-url').value.trim();
@@ -706,7 +907,7 @@
                 return;
             }
 
-            const newMod = { role, title, url, category, desc };
+            const newMod = { role, vertical, title, url, category, desc };
             sheetModules.push(newMod);
             localStorage.setItem('csc_sheet_modules', JSON.stringify(sheetModules));
             updateHomeModuleCounts();
@@ -744,7 +945,8 @@
             container.innerHTML = sheetModules.map(m => `
                 <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
                     <div class="truncate pr-2">
-                        <span class="uppercase font-bold text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 mr-1.5">${m.role}</span>
+                        <span class="uppercase font-bold text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 mr-1">${m.role}</span>
+                        <span class="font-semibold text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 mr-1.5">${m.vertical || 'ALL'}</span>
                         <span class="font-semibold text-slate-800">${m.title}</span>
                     </div>
                     <span class="text-[11px] text-slate-400 shrink-0">${m.category || ''}</span>
@@ -754,23 +956,32 @@
 
         function renderDashboard(role) {
             const meta = ROLE_META[role];
-            const modules = getRoleModules(role);
+            const modules = getFilteredModules(role);
             
-            document.getElementById('nav-role-badge').innerText = meta.roleBadge;
-            document.getElementById('banner-tag').innerHTML = `<i class="fas fa-briefcase"></i><span>${meta.bannerTag}</span>`;
-            document.getElementById('banner-title').innerText = meta.bannerTitle;
-            document.getElementById('banner-desc').innerText = meta.bannerDesc;
+            if (role === 'vh' && activeVhUser) {
+                document.getElementById('nav-role-badge').innerText = `${activeVhUser.name} (${activeVhUser.vertical})`;
+                document.getElementById('banner-tag').innerHTML = `<i class="fas fa-user-tie"></i><span>VERTICAL: ${String(activeVhUser.vertical).toUpperCase()}</span>`;
+                document.getElementById('banner-title').innerText = `Welcome, ${activeVhUser.name}`;
+                document.getElementById('banner-desc').innerText = `Showing state operational modules assigned to your vertical (${activeVhUser.vertical}).`;
+                document.getElementById('banner-role').innerText = `${activeVhUser.user_id}`;
+            } else {
+                document.getElementById('nav-role-badge').innerText = meta.roleBadge;
+                document.getElementById('banner-tag').innerHTML = `<i class="fas fa-briefcase"></i><span>${meta.bannerTag}</span>`;
+                document.getElementById('banner-title').innerText = meta.bannerTitle;
+                document.getElementById('banner-desc').innerText = meta.bannerDesc;
+                document.getElementById('banner-role').innerText = meta.roleLabel;
+            }
+
             document.getElementById('dashboard-banner').className = `bg-gradient-to-r ${meta.bannerGradient} text-white shadow-sm`;
             document.getElementById('banner-count').innerHTML = `${String(modules.length).padStart(2, '0')} <span class="text-xs font-medium text-emerald-200 ml-1">Operational</span>`;
-            document.getElementById('banner-role').innerText = meta.roleLabel;
 
             const grid = document.getElementById('modules-grid');
             if (!modules.length) {
                 grid.innerHTML = `
                     <div class="col-span-full bg-white border border-slate-200 rounded-2xl p-10 text-center">
                         <i class="fas fa-folder-open text-3xl text-slate-300 mb-3"></i>
-                        <p class="text-sm font-semibold text-slate-700">No modules found in Google Sheet for this role.</p>
-                        <p class="text-xs text-slate-400 mt-1">Add rows in the 'Modules' tab of your Google Sheet to display them here.</p>
+                        <p class="text-sm font-semibold text-slate-700">No modules assigned to this account yet.</p>
+                        <p class="text-xs text-slate-400 mt-1">Ensure matching 'role' and 'vertical' rows exist in the 'Modules' tab of your Google Sheet.</p>
                     </div>`;
             } else {
                 grid.innerHTML = modules.map(mod => {
@@ -816,7 +1027,9 @@
 
         function lockPortal() {
             sessionStorage.removeItem('csc_active_role');
+            sessionStorage.removeItem('csc_active_vh');
             selectedRole = null;
+            activeVhUser = null;
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('role-selection-screen').classList.remove('hidden');
         }
