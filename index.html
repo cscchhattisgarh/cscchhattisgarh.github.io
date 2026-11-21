@@ -43,7 +43,7 @@
                         <span class="hidden sm:inline-block text-xs font-medium text-indigo-600">Digital Seva State Gateway</span>
                     </div>
                 </div>
-                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                <span id="cloud-sync-badge" class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     Unified Portal Live
                 </span>
@@ -93,7 +93,7 @@
                                 Authorized Access — 6-Digit PIN
                             </p>
                             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                                Village Level Entrepreneur operational tools including Center Branding verification, Sewa Setu Kendra Branding, BharatNet Pre-Survey, Training Attendance, and MVY eKYC Status.
+                                Village Level Entrepreneur operational tools including Center Branding, Sewa Setu Kendra Branding, BharatNet Pre-Survey, Training Attendance, and MVY eKYC Status.
                             </p>
                         </div>
 
@@ -101,7 +101,7 @@
                             <span class="text-xs sm:text-sm font-bold text-blue-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
                                 Proceed as VLE <i class="fas fa-arrow-right text-xs"></i>
                             </span>
-                            <span class="text-xs text-slate-400 font-medium">05 Modules</span>
+                            <span id="home-count-vle" class="text-xs text-slate-400 font-medium">05 Modules</span>
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@
                             <span class="text-xs sm:text-sm font-bold text-indigo-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
                                 Proceed as DM <i class="fas fa-arrow-right text-xs"></i>
                             </span>
-                            <span class="text-xs text-slate-400 font-medium">03 Modules</span>
+                            <span id="home-count-dm" class="text-xs text-slate-400 font-medium">03 Modules</span>
                         </div>
                     </div>
 
@@ -169,7 +169,7 @@
                             <span class="text-xs sm:text-sm font-bold text-teal-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-2">
                                 Proceed as Vertical Head <i class="fas fa-arrow-right text-xs"></i>
                             </span>
-                            <span class="text-xs text-slate-400 font-medium">01 Module</span>
+                            <span id="home-count-vh" class="text-xs text-slate-400 font-medium">01 Module</span>
                         </div>
                     </div>
 
@@ -234,75 +234,137 @@
     </div>
 
     <!-- =====================================================================
-         STATE ADMIN PIN CONFIGURATION MODAL (HIDDEN UNTIL ADMIN AUTHENTICATED)
+         STATE ADMIN CONTROL MODAL (PIN MANAGEMENT + DYNAMIC MODULES MANAGER)
          ===================================================================== -->
-    <div id="admin-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+    <div id="admin-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative my-8">
             <button onclick="closeAdminModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
                 <i class="fas fa-times text-xs"></i>
             </button>
 
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-3 mb-5">
                 <div class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center text-lg">
                     <i class="fas fa-sliders-h"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900">State Admin — Access Control</h3>
-                    <p class="text-xs text-slate-500">Manage 6-digit access PINs without editing source code</p>
+                    <h3 class="text-lg font-bold text-slate-900">State Admin — Control Center</h3>
+                    <p class="text-xs text-slate-500">Manage PINs & publish new portal modules live without editing code</p>
                 </div>
             </div>
 
-            <div class="space-y-4">
-                <!-- VLE PIN -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">VLE Services Portal PIN (6 Digits)</label>
-                    <input type="text" id="admin-vle-pin" maxlength="6" inputmode="numeric" placeholder="000000"
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none">
+            <!-- Admin Tabs -->
+            <div class="flex gap-2 border-b border-slate-200 mb-5">
+                <button onclick="switchAdminTab('pins')" id="tab-btn-pins" class="px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors">
+                    <i class="fas fa-key mr-1.5"></i> Access PINs & Sync
+                </button>
+                <button onclick="switchAdminTab('modules')" id="tab-btn-modules" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">
+                    <i class="fas fa-plus-circle mr-1.5"></i> Add / Manage Modules
+                </button>
+            </div>
+
+            <!-- TAB 1: ACCESS PINS & SYNC -->
+            <div id="admin-tab-pins" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">VLE Services Portal PIN</label>
+                        <input type="text" id="admin-vle-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">District Manager Portal PIN</label>
+                        <input type="text" id="admin-dm-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Vertical Head Panel PIN</label>
+                        <input type="text" id="admin-vh-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-teal-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">State Admin Master PIN</label>
+                        <input type="text" id="admin-master-pin" maxlength="6" inputmode="numeric" placeholder="000000"
+                               class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-slate-700 focus:outline-none">
+                    </div>
                 </div>
 
-                <!-- DM PIN -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">District Manager Portal PIN (6 Digits)</label>
-                    <input type="text" id="admin-dm-pin" maxlength="6" inputmode="numeric" placeholder="000000"
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none">
-                </div>
-
-                <!-- Vertical Head Panel PIN -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Vertical Head Panel PIN (6 Digits)</label>
-                    <input type="text" id="admin-vh-pin" maxlength="6" inputmode="numeric" placeholder="000000"
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-teal-500 focus:outline-none">
-                </div>
-
-                <!-- State Admin Master PIN -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">State Admin Master PIN (6 Digits)</label>
-                    <input type="text" id="admin-master-pin" maxlength="6" inputmode="numeric" placeholder="000000"
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono tracking-widest text-slate-900 focus:bg-white focus:border-slate-700 focus:outline-none">
-                </div>
-
-                <!-- Optional Apps Script Cloud Sync URL -->
                 <div class="pt-2 border-t border-slate-100">
                     <label class="block text-xs font-semibold text-slate-700 mb-1">
-                        Global Sync API URL <span class="text-slate-400 font-normal">(Optional — Google Apps Script Web App)</span>
+                        Google Apps Script Sync API URL <span class="text-emerald-600 font-medium">(Syncs PINs & Dynamic Modules)</span>
                     </label>
                     <input type="url" id="admin-sync-url" placeholder="https://script.google.com/macros/s/.../exec"
                            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none">
-                    <p class="text-[11px] text-slate-400 mt-1">
-                        Link a Google Apps Script URL to sync updated PINs globally across all devices.
-                    </p>
                 </div>
 
                 <div id="admin-status-msg" class="hidden text-xs font-medium px-3 py-2 rounded-lg"></div>
 
                 <div class="pt-2 flex items-center justify-end gap-3">
                     <button onclick="closeAdminModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
-                        Cancel
+                        Close
                     </button>
                     <button onclick="saveAdminSettings()" id="save-admin-btn" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-colors flex items-center gap-2">
                         <i class="fas fa-save"></i>
-                        <span>Save & Apply PINs</span>
+                        <span>Save & Sync PINs</span>
                     </button>
+                </div>
+            </div>
+
+            <!-- TAB 2: ADD / MANAGE DYNAMIC MODULES -->
+            <div id="admin-tab-modules" class="hidden space-y-4">
+                <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 space-y-3">
+                    <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wider">Add New Portal Module</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Target Panel (Role)</label>
+                            <select id="mod-role" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                                <option value="vle">VLE Services Portal</option>
+                                <option value="dm">District Manager Command Center</option>
+                                <option value="vh">Vertical Head Panel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Category Badge</label>
+                            <input type="text" id="mod-category" placeholder="e.g., Agristack / DigiPay"
+                                   class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Module Title</label>
+                            <input type="text" id="mod-title" placeholder="e.g., Agristack Farmer Registry Tracker"
+                                   class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Hosted URL (GitHub Pages Link)</label>
+                            <input type="url" id="mod-url" placeholder="https://cscchhattisgarh.github.io/project-name/"
+                                   class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Short Description</label>
+                            <input type="text" id="mod-desc" placeholder="Brief summary of what this tool does..."
+                                   class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <span id="mod-add-status" class="text-xs font-medium text-emerald-700 hidden"></span>
+                        <button onclick="addNewDynamicModule()" id="add-mod-btn" class="ml-auto px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-colors flex items-center gap-1.5">
+                            <i class="fas fa-plus"></i>
+                            <span>Publish Module to Portal</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Cloud/Custom Modules List -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-xs font-bold text-slate-700">Live Sheet / Custom Modules</h4>
+                        <button onclick="refreshCloudData(true)" class="text-[11px] font-semibold text-indigo-600 hover:underline">
+                            <i class="fas fa-sync-alt mr-1"></i> Sync from Google Sheet
+                        </button>
+                    </div>
+                    <div id="custom-modules-list" class="max-h-40 overflow-y-auto space-y-2 pr-1">
+                        <!-- Dynamically populated -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -447,7 +509,7 @@
 
     <script>
         // =====================================================================
-        // DEFAULT PINS & OPTIONAL GOOGLE APPS SCRIPT GLOBAL SYNC URL
+        // DEFAULT PINS & GOOGLE APPS SCRIPT CLOUD SYNC URL
         // =====================================================================
         const DEFAULT_PINS = {
             vle: "000000",
@@ -456,42 +518,25 @@
             admin: "000000"
         };
 
-        // Optional: Paste your Google Apps Script Web App URL here once for global sync across all devices
+        // Paste your Google Apps Script Web App URL here once for global sync across all devices
         const DEFAULT_SYNC_URL = "";
 
         let activePins = { ...DEFAULT_PINS };
         let syncApiUrl = localStorage.getItem('csc_sync_url') || DEFAULT_SYNC_URL;
+        let cloudModules = [];
 
-        // Load locally saved PINs if available
-        const savedLocalPins = localStorage.getItem('csc_portal_pins');
-        if (savedLocalPins) {
-            try {
-                activePins = { ...activePins, ...JSON.parse(savedLocalPins) };
-            } catch (e) {}
-        }
-
-        // Fetch latest global PINs if Apps Script URL is configured
-        async function fetchCloudPins() {
-            if (!syncApiUrl) return;
-            try {
-                const res = await fetch(syncApiUrl + '?action=getPins');
-                const data = await res.json();
-                if (data && data.vle && data.dm) {
-                    activePins.vle = String(data.vle);
-                    activePins.dm = String(data.dm);
-                    if (data.vh) activePins.vh = String(data.vh);
-                    if (data.admin) activePins.admin = String(data.admin);
-                    localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
-                }
-            } catch (err) {
-                console.warn('Using cached/default PINs');
-            }
-        }
+        // Load locally cached PINs and Dynamic Modules
+        try {
+            const savedLocalPins = localStorage.getItem('csc_portal_pins');
+            if (savedLocalPins) activePins = { ...activePins, ...JSON.parse(savedLocalPins) };
+            const savedMods = localStorage.getItem('csc_cloud_modules');
+            if (savedMods) cloudModules = JSON.parse(savedMods);
+        } catch (e) {}
 
         // =====================================================================
-        // PORTAL MODULES DATA CONFIGURATION
+        // BASE PORTAL MODULES DATA CONFIGURATION
         // =====================================================================
-        const PORTAL_DATA = {
+        const BASE_PORTAL_DATA = {
             vle: {
                 roleBadge: "VLE Services Portal",
                 bannerTag: "VILLAGE LEVEL ENTREPRENEUR WORKSPACE",
@@ -605,21 +650,71 @@
             }
         };
 
+        // Helper to merge base modules + dynamic Google Sheet modules
+        function getMergedModules(role) {
+            const base = BASE_PORTAL_DATA[role] ? [...BASE_PORTAL_DATA[role].modules] : [];
+            const extra = cloudModules.filter(m => m.role && m.role.toLowerCase() === role.toLowerCase());
+            return [...base, ...extra];
+        }
+
+        function updateHomeModuleCounts() {
+            ['vle', 'dm', 'vh'].forEach(role => {
+                const count = getMergedModules(role).length;
+                const el = document.getElementById(`home-count-${role}`);
+                if (el) el.innerText = `${String(count).padStart(2, '0')} Module${count > 1 ? 's' : ''}`;
+            });
+        }
+
+        // Fetch latest global PINs & Dynamic Modules from Google Sheet
+        async function refreshCloudData(showAlert = false) {
+            if (!syncApiUrl) return;
+            try {
+                const res = await fetch(syncApiUrl + '?action=getAll');
+                const data = await res.json();
+                
+                if (data.pins) {
+                    if (data.pins.vle) activePins.vle = String(data.pins.vle);
+                    if (data.pins.dm) activePins.dm = String(data.pins.dm);
+                    if (data.pins.vh) activePins.vh = String(data.pins.vh);
+                    if (data.pins.admin) activePins.admin = String(data.pins.admin);
+                    localStorage.setItem('csc_portal_pins', JSON.stringify(activePins));
+                }
+
+                if (Array.isArray(data.modules)) {
+                    cloudModules = data.modules;
+                    localStorage.setItem('csc_cloud_modules', JSON.stringify(cloudModules));
+                }
+
+                updateHomeModuleCounts();
+                if (selectedRole && BASE_PORTAL_DATA[selectedRole]) {
+                    renderDashboard(selectedRole);
+                }
+                if (document.getElementById('admin-modal').classList.contains('hidden') === false) {
+                    renderCustomModulesList();
+                }
+                if (showAlert) alert('Synced latest PINs and Modules from Google Sheet!');
+            } catch (err) {
+                console.warn('Cloud sync fallback to local cache:', err);
+            }
+        }
+
         let selectedRole = null;
         const pinInputs = document.querySelectorAll('.pin-input');
         const pinError = document.getElementById('pin-error');
         const pinContainer = document.getElementById('pin-container');
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await fetchCloudPins();
+            updateHomeModuleCounts();
+            await refreshCloudData();
+
             const urlParams = new URLSearchParams(window.location.search);
             const paramRole = urlParams.get('role');
             const activeSessionRole = sessionStorage.getItem('csc_active_role');
 
-            if (activeSessionRole && PORTAL_DATA[activeSessionRole]) {
+            if (activeSessionRole && BASE_PORTAL_DATA[activeSessionRole]) {
                 selectedRole = activeSessionRole;
                 renderDashboard(selectedRole);
-            } else if (paramRole && (PORTAL_DATA[paramRole] || paramRole === 'admin')) {
+            } else if (paramRole && (BASE_PORTAL_DATA[paramRole] || paramRole === 'admin')) {
                 openPinModal(paramRole);
             }
         });
@@ -718,8 +813,28 @@
         }
 
         // =====================================================================
-        // STATE ADMIN MODAL LOGIC
+        // STATE ADMIN MODAL LOGIC (TABS: PINS & DYNAMIC MODULES)
         // =====================================================================
+        function switchAdminTab(tab) {
+            const pinsTab = document.getElementById('admin-tab-pins');
+            const modsTab = document.getElementById('admin-tab-modules');
+            const btnPins = document.getElementById('tab-btn-pins');
+            const btnMods = document.getElementById('tab-btn-modules');
+
+            if (tab === 'pins') {
+                pinsTab.classList.remove('hidden');
+                modsTab.classList.add('hidden');
+                btnPins.className = "px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors";
+                btnMods.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors";
+            } else {
+                pinsTab.classList.add('hidden');
+                modsTab.classList.remove('hidden');
+                btnMods.className = "px-4 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors";
+                btnPins.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors";
+                renderCustomModulesList();
+            }
+        }
+
         function openAdminModal() {
             document.getElementById('admin-vle-pin').value = activePins.vle;
             document.getElementById('admin-dm-pin').value = activePins.dm;
@@ -727,6 +842,7 @@
             document.getElementById('admin-master-pin').value = activePins.admin;
             document.getElementById('admin-sync-url').value = syncApiUrl;
             document.getElementById('admin-status-msg').classList.add('hidden');
+            switchAdminTab('pins');
             document.getElementById('admin-modal').classList.remove('hidden');
         }
 
@@ -782,42 +898,127 @@
             statusEl.classList.remove('hidden');
         }
 
+        // Add New Module Dynamically via Admin Panel (Syncs to Google Sheet)
+        async function addNewDynamicModule() {
+            const role = document.getElementById('mod-role').value;
+            const category = document.getElementById('mod-category').value.trim() || 'State Initiative';
+            const title = document.getElementById('mod-title').value.trim();
+            const url = document.getElementById('mod-url').value.trim();
+            const desc = document.getElementById('mod-desc').value.trim() || 'Operational monitoring and service delivery module.';
+            const statusEl = document.getElementById('mod-add-status');
+            const btn = document.getElementById('add-mod-btn');
+
+            if (!title || !url) {
+                statusEl.className = "text-xs font-medium text-rose-600";
+                statusEl.innerText = "Title and URL are required.";
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            const accentMap = { vle: 'blue', dm: 'indigo', vh: 'teal' };
+            const newMod = {
+                role: role,
+                title: title,
+                url: url,
+                category: category,
+                icon: 'fas fa-rocket',
+                accent: accentMap[role] || 'indigo',
+                desc: desc,
+                tags: [category, 'Live Portal']
+            };
+
+            cloudModules.push(newMod);
+            localStorage.setItem('csc_cloud_modules', JSON.stringify(cloudModules));
+            updateHomeModuleCounts();
+            renderCustomModulesList();
+
+            if (syncApiUrl) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Publishing...</span>';
+                try {
+                    await fetch(syncApiUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'addModule', module: newMod })
+                    });
+                    statusEl.className = "text-xs font-medium text-emerald-700";
+                    statusEl.innerText = "Module published to Google Sheet & live for all users!";
+                } catch (e) {
+                    statusEl.className = "text-xs font-medium text-amber-700";
+                    statusEl.innerText = "Saved locally (Sync URL unreachable).";
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus"></i> <span>Publish Module to Portal</span>';
+            } else {
+                statusEl.className = "text-xs font-medium text-emerald-700";
+                statusEl.innerText = "Added locally! Set Sync API URL to publish for all users.";
+            }
+
+            statusEl.classList.remove('hidden');
+            document.getElementById('mod-title').value = '';
+            document.getElementById('mod-url').value = '';
+            document.getElementById('mod-desc').value = '';
+        }
+
+        function renderCustomModulesList() {
+            const container = document.getElementById('custom-modules-list');
+            if (!cloudModules.length) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic py-2">No additional modules added from Google Sheet yet.</p>';
+                return;
+            }
+            container.innerHTML = cloudModules.map((m, idx) => `
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                    <div class="truncate pr-2">
+                        <span class="uppercase font-bold text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 mr-1.5">${m.role}</span>
+                        <span class="font-semibold text-slate-800">${m.title}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400 shrink-0">${m.category}</span>
+                </div>
+            `).join('');
+        }
+
         // =====================================================================
         // DASHBOARD RENDERING
         // =====================================================================
         function renderDashboard(role) {
-            const config = PORTAL_DATA[role];
+            const config = BASE_PORTAL_DATA[role];
+            const allModules = getMergedModules(role);
             
             document.getElementById('nav-role-badge').innerText = config.roleBadge;
             document.getElementById('banner-tag').innerHTML = `<i class="fas fa-briefcase"></i><span>${config.bannerTag}</span>`;
             document.getElementById('banner-title').innerText = config.bannerTitle;
             document.getElementById('banner-desc').innerText = config.bannerDesc;
             document.getElementById('dashboard-banner').className = `bg-gradient-to-r ${config.bannerGradient} text-white shadow-sm`;
-            document.getElementById('banner-count').innerHTML = `0${config.modules.length} <span class="text-xs font-medium text-emerald-200 ml-1">Operational</span>`;
+            document.getElementById('banner-count').innerHTML = `${String(allModules.length).padStart(2, '0')} <span class="text-xs font-medium text-emerald-200 ml-1">Operational</span>`;
             document.getElementById('banner-role').innerText = config.roleLabel;
 
             const grid = document.getElementById('modules-grid');
             grid.innerHTML = '';
 
-            config.modules.forEach(mod => {
-                const tagsHtml = mod.tags.map(t => `
+            allModules.forEach(mod => {
+                const accent = mod.accent || 'indigo';
+                const icon = mod.icon || 'fas fa-cube';
+                const tags = Array.isArray(mod.tags) ? mod.tags : [mod.category || 'Operations', 'Live Portal'];
+
+                const tagsHtml = tags.map(t => `
                     <span class="bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg">
-                        <i class="fas fa-check-circle text-${mod.accent}-500 mr-1"></i> ${t}
+                        <i class="fas fa-check-circle text-${accent}-500 mr-1"></i> ${t}
                     </span>
                 `).join('');
 
                 const card = `
-                    <div onclick="openApp('${mod.title}', '${mod.url}')" 
-                         data-title="${mod.title.toLowerCase()} ${mod.category.toLowerCase()} ${mod.desc.toLowerCase()}"
-                         class="module-card group cursor-pointer bg-white rounded-2xl border border-slate-200/90 hover:border-${mod.accent}-400 shadow-sm hover:shadow-lg hover:shadow-${mod.accent}-900/5 transition-all duration-200 flex flex-col justify-between overflow-hidden">
+                    <div onclick="openApp('${mod.title.replace(/'/g, "\\'")}', '${mod.url}')" 
+                         data-title="${mod.title.toLowerCase()} ${(mod.category || '').toLowerCase()} ${(mod.desc || '').toLowerCase()}"
+                         class="module-card group cursor-pointer bg-white rounded-2xl border border-slate-200/90 hover:border-${accent}-400 shadow-sm hover:shadow-lg hover:shadow-${accent}-900/5 transition-all duration-200 flex flex-col justify-between overflow-hidden">
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-5">
-                                <div class="w-12 h-12 rounded-xl bg-${mod.accent}-50 border border-${mod.accent}-100 text-${mod.accent}-600 flex items-center justify-center text-lg group-hover:bg-${mod.accent}-600 group-hover:text-white transition-colors">
-                                    <i class="${mod.icon}"></i>
+                                <div class="w-12 h-12 rounded-xl bg-${accent}-50 border border-${accent}-100 text-${accent}-600 flex items-center justify-center text-lg group-hover:bg-${accent}-600 group-hover:text-white transition-colors">
+                                    <i class="${icon}"></i>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-${mod.accent}-50 text-${mod.accent}-700">
-                                        ${mod.category}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-${accent}-50 text-${accent}-700">
+                                        ${mod.category || 'Module'}
                                     </span>
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live
@@ -825,11 +1026,11 @@
                                 </div>
                             </div>
                             
-                            <h3 class="text-base font-bold text-slate-900 group-hover:text-${mod.accent}-600 transition-colors mb-2">
+                            <h3 class="text-base font-bold text-slate-900 group-hover:text-${accent}-600 transition-colors mb-2">
                                 ${mod.title}
                             </h3>
                             <p class="text-xs text-slate-600 leading-relaxed mb-5">
-                                ${mod.desc}
+                                ${mod.desc || ''}
                             </p>
 
                             <div class="flex flex-wrap gap-2 text-[11px] text-slate-600">
@@ -837,7 +1038,7 @@
                             </div>
                         </div>
 
-                        <div class="px-6 py-3.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-${mod.accent}-600 group-hover:bg-${mod.accent}-50/60 transition-colors">
+                        <div class="px-6 py-3.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-${accent}-600 group-hover:bg-${accent}-50/60 transition-colors">
                             <span>Open Application</span>
                             <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                         </div>
